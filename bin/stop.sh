@@ -1,0 +1,1 @@
+docker rm -f $(docker ps -a -f name=local -q)

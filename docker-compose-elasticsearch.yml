@@ -1,0 +1,39 @@
+version: '3.3'
+services:
+  elasticsearch:
+    container_name: local-envs_elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.5
+    ports:
+      - "9200:9200"
+    command: >
+      /bin/sh -c "./bin/elasticsearch-plugin list | grep -q analysis-nori
+      || ./bin/elasticsearch-plugin install analysis-nori;
+      /usr/local/bin/docker-entrypoint.sh"
+    volumes:
+      - ~/data/one/elasticsearch:/usr/share/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.monitoring.enabled=false
+      - xpack.ml.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.watcher.enabled=false
+      - HTTP_HOST=0.0.0.0
+      - TRANSPORT_HOST=127.0.0.1
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+  kibana:
+    container_name: local-envs_kibana
+    image: kibana:7.17.5
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+  mongo:
+    container_name: local-envs_mongo
+    image: mongo:4.2.9
+    restart: always
+    volumes:
+      - ${HOME}/one/mongo/data:/data/db
+    ports:
+      - "27017:27017"
+    # entrypoint: [ "docker-entrypoint.sh", "--replSet", "rs0"]
